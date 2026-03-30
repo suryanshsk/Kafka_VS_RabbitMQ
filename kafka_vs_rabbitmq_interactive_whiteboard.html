@@ -1,0 +1,659 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#8FC6FF;--blue-l:#142236;--blue-m:#5EA9F5;--teal:#8AE8CB;--teal-l:#102922;--teal-m:#5BC9A8;--amber:#FFD28C;--amber-l:#2E2414;--amber-m:#E6AE58;--coral:#FFAF97;--coral-l:#301C16;--coral-m:#F08A6A;--gray-l:#222222;--gray-m:#BCBCBC;--purple:#C4B8FF;--purple-l:#1D1934;--purple-m:#A093F0;--color-background-primary:#0B0B0B;--color-background-secondary:#171717;--color-text-primary:#F5F5F5;--color-text-secondary:#D0D0D0;--color-border-secondary:#3A3A3A;--color-border-tertiary:#2A2A2A}
+body{font-family:var(--font-sans,system-ui);background:#000;color:var(--color-text-primary)}
+
+.wb{max-width:820px;margin:0 auto;padding:8px 4px 24px}
+.nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;padding:10px;background:var(--color-background-secondary);border-radius:10px;border:0.5px solid var(--color-border-tertiary)}
+.nav-btn{padding:7px 14px;font-size:12px;font-weight:500;border:0.5px solid var(--color-border-secondary);border-radius:6px;background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;transition:all .2s;white-space:nowrap}
+.nav-btn.active{background:var(--color-text-primary);color:var(--color-background-primary);border-color:var(--color-text-primary)}
+.nav-btn:hover:not(.active){background:var(--color-background-secondary)}
+
+.section{display:none}
+.section.active{display:block}
+.section-title{font-size:20px;font-weight:500;margin-bottom:4px;padding-bottom:10px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:16px}
+.subtitle{font-size:13px;color:var(--color-text-secondary);margin-bottom:16px;margin-top:-10px}
+.brand-line{display:inline-flex;align-items:center;gap:8px}
+.brand-logo{height:16px;width:auto;display:inline-block;vertical-align:middle;flex-shrink:0}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.arch-card{border:0.5px solid var(--color-border-secondary);border-radius:10px;overflow:hidden}
+.arch-header{padding:10px 14px;font-size:14px;font-weight:500;display:flex;align-items:center;gap:8px}
+.arch-header.rabbit{background:var(--teal-l);color:var(--teal)}
+.arch-header.kafka{background:var(--blue-l);color:var(--blue)}
+.arch-body{padding:14px}
+
+.flow-box{border-radius:7px;padding:8px 12px;margin-bottom:8px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;cursor:pointer;transition:transform .15s;border:0.5px solid transparent}
+.flow-box:hover{transform:translateX(3px)}
+.arrow-down{text-align:center;color:var(--gray-m);font-size:16px;margin:2px 0;line-height:1}
+.flow-label{font-size:11px;color:var(--gray-m);margin-left:auto;font-weight:400}
+
+.rb-producer{background:var(--teal-l);color:var(--teal);border-color:#9FE1CB}
+.rb-exchange{background:var(--amber-l);color:var(--amber);border-color:#FAC775}
+.rb-queue{background:var(--coral-l);color:var(--coral);border-color:#F5C4B3}
+.rb-consumer{background:var(--teal-l);color:var(--teal);border-color:#9FE1CB}
+
+.kf-producer{background:var(--blue-l);color:var(--blue);border-color:#B5D4F4}
+.kf-topic{background:var(--purple-l);color:var(--purple);border-color:#CECBF6}
+.kf-partition{background:var(--amber-l);color:var(--amber);border-color:#FAC775}
+.kf-consumer{background:var(--blue-l);color:var(--blue);border-color:#B5D4F4}
+
+.tooltip-box{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--color-text-secondary);margin-top:8px;line-height:1.6;display:none}
+.tooltip-box.show{display:block}
+
+.concept-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.concept-card{border-radius:9px;padding:14px;border:0.5px solid var(--color-border-tertiary)}
+.concept-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;color:var(--color-text-secondary)}
+.concept-title{font-size:15px;font-weight:500;margin-bottom:6px}
+.concept-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.6}
+
+.vs-divider{display:flex;align-items:center;gap:12px;margin:16px 0;font-size:12px;color:var(--gray-m)}
+.vs-divider::before,.vs-divider::after{content:'';flex:1;height:0.5px;background:var(--color-border-tertiary)}
+
+.push-pull-demo{border:0.5px solid var(--color-border-tertiary);border-radius:10px;padding:16px;margin-bottom:16px}
+.demo-title{font-size:13px;font-weight:500;margin-bottom:12px}
+.demo-track{position:relative;height:54px;background:var(--color-background-secondary);border-radius:8px;margin-bottom:8px;overflow:hidden;display:flex;align-items:center}
+.demo-label{font-size:11px;color:var(--color-text-secondary);padding:0 12px;white-space:nowrap;z-index:2}
+.msg-dot{position:absolute;width:14px;height:14px;border-radius:50%;top:50%;transform:translateY(-50%);transition:left .6s cubic-bezier(.4,0,.2,1)}
+.msg-dot.push-dot{background:var(--teal-m)}
+.msg-dot.pull-dot{background:var(--blue-m)}
+.demo-nodes{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--color-text-secondary);padding:0 10px}
+.node-box{padding:4px 10px;border-radius:5px;font-size:11px;font-weight:500;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary)}
+.node-arrow{color:var(--gray-m)}
+
+.retention-demo{border:0.5px solid var(--color-border-tertiary);border-radius:10px;padding:16px;margin-bottom:16px}
+.msg-stream{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.msg-pill{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;transition:all .2s;border:0.5px solid transparent}
+.msg-pill.rb-msg{background:var(--teal-l);color:var(--teal);border-color:#9FE1CB}
+.msg-pill.rb-msg.consumed{background:var(--gray-l);color:var(--gray-m);border-color:#D3D1C7;text-decoration:line-through;opacity:.5}
+.msg-pill.kf-msg{background:var(--blue-l);color:var(--blue);border-color:#B5D4F4}
+.msg-pill.kf-msg.replayed{outline:2px solid var(--blue-m)}
+.consumer-log{font-size:11px;color:var(--color-text-secondary);background:var(--color-background-secondary);border-radius:6px;padding:8px 12px;margin-top:8px;min-height:36px;font-family:var(--font-mono,monospace)}
+
+.broker-table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:13px}
+.broker-table th{text-align:left;padding:8px 12px;font-weight:500;font-size:12px;background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary)}
+.broker-table td{padding:10px 12px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);vertical-align:top;line-height:1.5}
+.broker-table td:first-child{font-weight:500;color:var(--color-text-primary);white-space:nowrap}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.badge-green{background:var(--teal-l);color:var(--teal)}
+.badge-blue{background:var(--blue-l);color:var(--blue)}
+.badge-amber{background:var(--amber-l);color:var(--amber)}
+
+.use-case-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.use-card{border-radius:9px;padding:14px;border:0.5px solid var(--color-border-tertiary)}
+.use-card.rabbit-card{border-left:3px solid var(--teal-m);background:var(--teal-l)}
+.use-card.kafka-card{border-left:3px solid var(--blue-m);background:var(--blue-l)}
+.use-card-title{font-size:13px;font-weight:500;margin-bottom:8px}
+.use-list{font-size:12px;color:var(--color-text-secondary);line-height:1.8;list-style:none}
+.use-list li::before{content:'→  ';color:var(--gray-m)}
+
+.real-ex{border-radius:9px;padding:12px 14px;margin-bottom:8px;font-size:13px;border:0.5px solid var(--color-border-tertiary);cursor:pointer;transition:transform .15s}
+.real-ex:hover{transform:translateX(3px)}
+.real-ex-company{font-weight:500;margin-bottom:3px}
+.real-ex-desc{font-size:12px;color:var(--color-text-secondary)}
+
+.decision-tree{padding:10px}
+.dt-question{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:9px;padding:14px;font-size:14px;font-weight:500;margin-bottom:12px;text-align:center}
+.dt-options{display:flex;gap:10px;justify-content:center;margin-bottom:12px}
+.dt-btn{padding:8px 18px;font-size:13px;border:0.5px solid var(--color-border-secondary);border-radius:6px;background:var(--color-background-primary);color:var(--color-text-primary);cursor:pointer;transition:all .2s}
+.dt-btn:hover{background:var(--color-background-secondary)}
+.dt-btn.chosen-rabbit{background:var(--teal-l);border-color:#5DCAA5;color:var(--teal)}
+.dt-btn.chosen-kafka{background:var(--blue-l);border-color:#85B7EB;color:var(--blue)}
+.dt-result{border-radius:10px;padding:16px;text-align:center;font-size:15px;font-weight:500;display:none;margin-top:8px}
+.dt-result.show-rabbit{display:block;background:var(--teal-l);color:var(--teal);border:0.5px solid #5DCAA5}
+.dt-result.show-kafka{display:block;background:var(--blue-l);color:var(--blue);border:0.5px solid #85B7EB}
+.dt-result small{display:block;font-size:12px;font-weight:400;margin-top:4px;opacity:.8}
+.dt-reset{display:none;margin:10px auto 0;padding:6px 16px;font-size:12px;border:0.5px solid var(--color-border-secondary);border-radius:5px;background:transparent;cursor:pointer;color:var(--color-text-secondary)}
+.dt-reset.show{display:block}
+
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:0.5px solid var(--color-border-tertiary);border-radius:10px;overflow:hidden}
+.summary-header{padding:12px 16px;font-size:13px;font-weight:500;text-align:center}
+.summary-header.rb{background:var(--teal-l);color:var(--teal)}
+.summary-header.kf{background:var(--blue-l);color:var(--blue)}
+.summary-row{display:contents}
+.summary-row > div{padding:9px 16px;font-size:12px;border-top:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);line-height:1.5}
+.summary-row > div:first-child{border-right:0.5px solid var(--color-border-tertiary)}
+.summary-attr{background:var(--color-background-secondary);font-weight:500;font-size:11px;color:var(--color-text-secondary);padding:6px 16px;border-top:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;grid-column:1/-1}
+.span-2{grid-column:1/-1}
+</style>
+
+<div class="wb">
+<div class="nav">
+  <button class="nav-btn active" onclick="showSection('arch')">Architecture</button>
+  <button class="nav-btn" onclick="showSection('pushpull')">Push vs Pull</button>
+  <button class="nav-btn" onclick="showSection('retention')">Message Retention</button>
+  <button class="nav-btn" onclick="showSection('broker')">Smart vs Dumb Broker</button>
+  <button class="nav-btn" onclick="showSection('usecase')">When to Use What</button>
+  <button class="nav-btn" onclick="showSection('decide')">Decision Tool</button>
+  <button class="nav-btn" onclick="showSection('summary')">Quick Summary</button>
+</div>
+
+<!-- ====== ARCHITECTURE ====== -->
+<div class="section active" id="s-arch">
+<p class="section-title">Architecture Diagrams</p>
+<p class="subtitle">Click any component to learn what it does</p>
+<div class="two-col">
+  <div class="arch-card">
+    <div class="arch-header rabbit"><span class="brand-line"><img class="brand-logo" src="https://cdn.simpleicons.org/rabbitmq/FF6600" alt="RabbitMQ logo">RabbitMQ</span></div>
+    <div class="arch-body">
+      <div class="flow-box rb-producer" onclick="showTip('rb','producer')">
+        <span>📤</span> Producer <span class="flow-label">sends msg</span>
+      </div>
+      <div class="arrow-down">↓</div>
+      <div class="flow-box rb-exchange" onclick="showTip('rb','exchange')">
+        <span>🔀</span> Exchange <span class="flow-label">routes msg</span>
+      </div>
+      <div class="arrow-down">↓</div>
+      <div class="flow-box rb-queue" onclick="showTip('rb','queue')">
+        <span>📥</span> Queue <span class="flow-label">stores msg</span>
+      </div>
+      <div class="arrow-down">↓</div>
+      <div class="flow-box rb-consumer" onclick="showTip('rb','consumer')">
+        <span>⚙️</span> Consumer <span class="flow-label">processes & deletes</span>
+      </div>
+      <div class="tooltip-box" id="tip-rb"></div>
+      <div style="margin-top:10px;padding-top:10px;border-top:0.5px solid var(--color-border-tertiary)">
+        <div style="font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px">Exchange Types</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <span class="badge badge-green" onclick="showTip('rb','direct')" style="cursor:pointer">Direct</span>
+          <span class="badge badge-amber" onclick="showTip('rb','fanout')" style="cursor:pointer">Fanout</span>
+          <span class="badge badge-green" onclick="showTip('rb','topic')" style="cursor:pointer">Topic</span>
+          <span class="badge badge-amber" onclick="showTip('rb','headers')" style="cursor:pointer">Headers</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="arch-card">
+    <div class="arch-header kafka"><span class="brand-line"><img class="brand-logo" src="https://cdn.simpleicons.org/apachekafka/FFFFFF" alt="Kafka logo">Kafka</span></div>
+    <div class="arch-body">
+      <div class="flow-box kf-producer" onclick="showTip('kf','producer')">
+        <span>📤</span> Producer <span class="flow-label">sends event</span>
+      </div>
+      <div class="arrow-down">↓</div>
+      <div class="flow-box kf-topic" onclick="showTip('kf','topic')">
+        <span>📁</span> Topic <span class="flow-label">like a category</span>
+      </div>
+      <div class="arrow-down">↓</div>
+      <div class="flow-box kf-partition" onclick="showTip('kf','partition')">
+        <span>🗂️</span> Partitions (0,1,2…) <span class="flow-label">parallel lanes</span>
+      </div>
+      <div class="arrow-down">↓</div>
+      <div class="flow-box kf-consumer" onclick="showTip('kf','consumer')">
+        <span>🔎</span> Consumer Group <span class="flow-label">pulls by offset</span>
+      </div>
+      <div class="tooltip-box" id="tip-kf"></div>
+      <div style="margin-top:10px;padding-top:10px;border-top:0.5px solid var(--color-border-tertiary)">
+        <div style="font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px">Key Components</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <span class="badge badge-blue" onclick="showTip('kf','broker')" style="cursor:pointer">Broker</span>
+          <span class="badge badge-amber" onclick="showTip('kf','zookeeper')" style="cursor:pointer">Zookeeper/KRaft</span>
+          <span class="badge badge-blue" onclick="showTip('kf','offset')" style="cursor:pointer">Offset</span>
+          <span class="badge badge-amber" onclick="showTip('kf','replication')" style="cursor:pointer">Replication</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div style="background:var(--color-background-secondary);border-radius:9px;padding:14px;font-size:13px;color:var(--color-text-secondary);line-height:1.7;border:0.5px solid var(--color-border-tertiary)">
+  <strong style="color:var(--color-text-primary)">Analogy to remember:</strong><br>
+  <span class="brand-line"><img class="brand-logo" src="https://cdn.simpleicons.org/rabbitmq/FF6600" alt="RabbitMQ logo">RabbitMQ</span> = <strong style="color:var(--teal)">Courier delivery</strong> — package goes from sender → sorting centre → delivered → gone.<br>
+  <span class="brand-line"><img class="brand-logo" src="https://cdn.simpleicons.org/apachekafka/FFFFFF" alt="Kafka logo">Kafka</span> = <strong style="color:var(--blue)">YouTube video</strong> — uploaded once, stored forever, anyone can watch anytime, replay whenever.
+</div>
+</div>
+
+<!-- ====== PUSH vs PULL ====== -->
+<div class="section" id="s-pushpull">
+<p class="section-title">Push vs Pull Model</p>
+<p class="subtitle">See how messages travel differently in each system</p>
+<div class="push-pull-demo">
+  <div class="demo-title" style="color:var(--teal)"><span class="brand-line"><img class="brand-logo" src="https://cdn.simpleicons.org/rabbitmq/FF6600" alt="RabbitMQ logo">RabbitMQ</span> — Push Model (Broker pushes to consumer)</div>
+  <div class="demo-nodes" style="margin-bottom:8px">
+    <div class="node-box" style="background:var(--teal-l);color:var(--teal);border-color:#9FE1CB">Producer</div>
+    <span class="node-arrow">→</span>
+    <div class="node-box" style="background:var(--amber-l);color:var(--amber);border-color:#FAC775">Broker</div>
+    <span class="node-arrow">→ pushes →</span>
+    <div class="node-box" style="background:var(--teal-l);color:var(--teal);border-color:#9FE1CB">Consumer 1</div>
+    <div class="node-box" style="background:var(--teal-l);color:var(--teal);border-color:#9FE1CB">Consumer 2</div>
+  </div>
+  <div class="demo-track" id="push-track">
+    <span class="demo-label">Broker →</span>
+    <div class="msg-dot push-dot" id="push-dot" style="left:15%"></div>
+    <span class="demo-label" style="margin-left:auto">Consumer</span>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button onclick="animatePush()" style="padding:6px 14px;font-size:12px;border:0.5px solid #5DCAA5;background:var(--teal-l);color:var(--teal);border-radius:5px;cursor:pointer">▶ Send message</button>
+    <div id="push-log" class="consumer-log" style="flex:1"></div>
+  </div>
+</div>
+
+<div class="push-pull-demo">
+  <div class="demo-title" style="color:var(--blue)"><span class="brand-line"><img class="brand-logo" src="https://cdn.simpleicons.org/apachekafka/FFFFFF" alt="Kafka logo">Kafka</span> — Pull Model (Consumer polls when ready)</div>
+  <div class="demo-nodes" style="margin-bottom:8px">
+    <div class="node-box" style="background:var(--blue-l);color:var(--blue);border-color:#B5D4F4">Consumer</div>
+    <span class="node-arrow">→ polls →</span>
+    <div class="node-box" style="background:var(--purple-l);color:var(--purple);border-color:#CECBF6">Kafka Topic</div>
+    <span class="node-arrow">(stored forever)</span>
+  </div>
+  <div class="demo-track" id="pull-track">
+    <span class="demo-label">Consumer →</span>
+    <div class="msg-dot pull-dot" id="pull-dot" style="left:15%"></div>
+    <span class="demo-label" style="margin-left:auto">Topic</span>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button onclick="animatePull()" style="padding:6px 14px;font-size:12px;border:0.5px solid #85B7EB;background:var(--blue-l);color:var(--blue);border-radius:5px;cursor:pointer">▶ Consumer polls</button>
+    <div id="pull-log" class="consumer-log" style="flex:1"></div>
+  </div>
+</div>
+
+<div class="concept-row">
+  <div class="concept-card" style="background:var(--teal-l);border-color:#9FE1CB">
+    <div class="concept-label" style="color:var(--teal)">RabbitMQ — Push</div>
+    <div class="concept-title" style="color:var(--teal)">Broker decides delivery</div>
+    <div class="concept-desc">Broker maintains connection & pushes messages instantly. Consumer must be ready. Risk: overwhelm slow consumers. Use <strong>prefetch count</strong> to limit.</div>
+  </div>
+  <div class="concept-card" style="background:var(--blue-l);border-color:#B5D4F4">
+    <div class="concept-label" style="color:var(--blue)">Kafka — Pull</div>
+    <div class="concept-title" style="color:var(--blue)">Consumer decides when</div>
+    <div class="concept-desc">Consumer polls at its own pace. Can batch-fetch. Never overwhelmed. Consumer tracks its own <strong>offset</strong>. Scale independently per group.</div>
+  </div>
+</div>
+</div>
+
+<!-- ====== RETENTION ====== -->
+<div class="section" id="s-retention">
+<p class="section-title">Destructive Consumption vs Message Retention</p>
+<p class="subtitle">Click messages to see what happens after processing</p>
+<div class="retention-demo">
+  <div class="demo-title" style="color:var(--teal)"><span class="brand-line"><img class="brand-logo" src="https://cdn.simpleicons.org/rabbitmq/FF6600" alt="RabbitMQ logo">RabbitMQ</span> — Message deleted after consumption</div>
+  <div class="msg-stream" id="rb-msgs"></div>
+  <div id="rb-log" class="consumer-log">Click a message pill above to consume it...</div>
+</div>
+<div class="retention-demo">
+  <div class="demo-title" style="color:var(--blue)"><span class="brand-line"><img class="brand-logo" src="https://cdn.simpleicons.org/apachekafka/FFFFFF" alt="Kafka logo">Kafka</span> — Messages retained, multiple consumers replay freely</div>
+  <div class="msg-stream" id="kf-msgs"></div>
+  <div style="display:flex;gap:8px;margin-top:8px">
+    <button onclick="addKfConsumer()" style="padding:5px 12px;font-size:11px;border:0.5px solid #85B7EB;background:var(--blue-l);color:var(--blue);border-radius:5px;cursor:pointer">+ Add Consumer Group</button>
+    <button onclick="resetKf()" style="padding:5px 12px;font-size:11px;border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);border-radius:5px;cursor:pointer">Reset offsets</button>
+  </div>
+  <div id="kf-consumers"></div>
+</div>
+<div class="concept-row">
+  <div class="concept-card" style="background:var(--coral-l);border-color:#F5C4B3">
+    <div class="concept-label" style="color:var(--coral)">Destructive Consumption</div>
+    <div class="concept-title" style="color:var(--coral)">One time, then gone</div>
+    <div class="concept-desc">RabbitMQ deletes after ACK. Only one consumer reads each message. Great for task queues, payments, emails — where you don't want double processing.</div>
+  </div>
+  <div class="concept-card" style="background:var(--blue-l);border-color:#B5D4F4">
+    <div class="concept-label" style="color:var(--blue)">Message Retention</div>
+    <div class="concept-title" style="color:var(--blue)">Stored, replayable</div>
+    <div class="concept-desc">Kafka keeps messages (default 7 days, configurable forever). Multiple consumer groups read same data independently. Rewind & replay anytime.</div>
+  </div>
+</div>
+</div>
+
+<!-- ====== BROKER ====== -->
+<div class="section" id="s-broker">
+<p class="section-title">Smart Broker vs Dumb Broker</p>
+<p class="subtitle">Where does the intelligence live?</p>
+<div class="two-col" style="margin-bottom:16px">
+  <div style="border:0.5px solid #9FE1CB;border-radius:10px;overflow:hidden">
+    <div class="arch-header rabbit"><span class="brand-line"><img class="brand-logo" src="https://cdn.simpleicons.org/rabbitmq/FF6600" alt="RabbitMQ logo">Smart Broker, Dumb Consumer</span></div>
+    <div class="arch-body">
+      <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.8;margin-bottom:10px">The <strong>broker</strong> is intelligent. It knows:</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.9">
+        ✅ Which consumer gets which message<br>
+        ✅ Routing rules (Exchange types)<br>
+        ✅ Whether message was delivered (ACK)<br>
+        ✅ Retry logic, dead letter queues<br>
+        ✅ Priority queues<br>
+        ✅ Tracks consumer state
+      </div>
+      <div style="margin-top:10px;padding:10px;background:var(--teal-l);border-radius:7px;font-size:12px;color:var(--teal)">
+        Consumer is simple — just receives & ACKs. Broker does the heavy lifting.
+      </div>
+    </div>
+  </div>
+  <div style="border:0.5px solid #B5D4F4;border-radius:10px;overflow:hidden">
+    <div class="arch-header kafka"><span class="brand-line"><img class="brand-logo" src="https://cdn.simpleicons.org/apachekafka/FFFFFF" alt="Kafka logo">Dumb Broker, Smart Consumer</span></div>
+    <div class="arch-body">
+      <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.8;margin-bottom:10px">The <strong>consumer</strong> is intelligent. It knows:</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.9">
+        ✅ Which offset to read from<br>
+        ✅ When to commit offsets<br>
+        ✅ How fast to consume<br>
+        ✅ How to rebalance in a group<br>
+        ✅ Whether to replay old data<br>
+        ✅ Its own position in the log
+      </div>
+      <div style="margin-top:10px;padding:10px;background:var(--blue-l);border-radius:7px;font-size:12px;color:var(--blue)">
+        Kafka broker = dumb log store. Consumers do all the state management.
+      </div>
+    </div>
+  </div>
+</div>
+<table class="broker-table">
+  <tr><th>Aspect</th><th>RabbitMQ (Smart Broker)</th><th>Kafka (Dumb Broker)</th></tr>
+  <tr><td>Routing logic</td><td>In the broker (Exchange)</td><td>In the consumer (read from partition)</td></tr>
+  <tr><td>Consumer tracking</td><td>Broker tracks delivery state</td><td>Consumer tracks offset</td></tr>
+  <tr><td>Failure recovery</td><td>Broker retries, dead-letter</td><td>Consumer re-reads from offset</td></tr>
+  <tr><td>Scaling</td><td>Vertical (broker gets bigger)</td><td>Horizontal (add partitions)</td></tr>
+  <tr><td>Bottleneck</td><td>Broker can become bottleneck</td><td>Log is horizontally distributed</td></tr>
+</table>
+<div style="background:var(--amber-l);border-radius:9px;padding:14px;font-size:13px;color:var(--amber);border:0.5px solid #FAC775">
+  <strong>Why this matters for interviews:</strong> Kafka's "dumb broker" design is why it scales to millions of msgs/sec. The broker just appends to a log — no routing overhead. Consumer groups independently manage their own position.
+</div>
+</div>
+
+<!-- ====== USE CASE ====== -->
+<div class="section" id="s-usecase">
+<p class="section-title">When to Use What</p>
+<p class="subtitle">Real-world examples — click a card to expand</p>
+<div class="use-case-grid">
+  <div class="use-card rabbit-card">
+    <div class="use-card-title" style="color:var(--teal)"><span class="brand-line"><img class="brand-logo" src="https://cdn.simpleicons.org/rabbitmq/FF6600" alt="RabbitMQ logo">Use RabbitMQ when...</span></div>
+    <ul class="use-list" style="color:var(--teal)">
+      <li>Task queues (background jobs)</li>
+      <li>Email / SMS notifications</li>
+      <li>Microservice RPC calls</li>
+      <li>Complex routing needed</li>
+      <li>Per-message ACK & retry</li>
+      <li>Low latency responses</li>
+      <li>One consumer per message</li>
+    </ul>
+  </div>
+  <div class="use-card kafka-card">
+    <div class="use-card-title" style="color:var(--blue)"><span class="brand-line"><img class="brand-logo" src="https://cdn.simpleicons.org/apachekafka/FFFFFF" alt="Kafka logo">Use Kafka when...</span></div>
+    <ul class="use-list" style="color:var(--blue)">
+      <li>Event streaming / real-time data</li>
+      <li>Logs, analytics, tracking</li>
+      <li>Multiple consumers same data</li>
+      <li>Audit trail needed (replay)</li>
+      <li>High throughput (millions/sec)</li>
+      <li>Event sourcing / CQRS</li>
+      <li>Data pipeline / ETL</li>
+    </ul>
+  </div>
+</div>
+<div style="margin-bottom:12px">
+  <div style="font-size:13px;font-weight:500;margin-bottom:8px">Real Examples — click to see why</div>
+  <div class="real-ex" style="background:var(--teal-l);border-color:#9FE1CB" onclick="showEx('signup')">
+    <div class="real-ex-company" style="color:var(--teal)"><span class="brand-line"><img class="brand-logo" src="https://cdn.simpleicons.org/rabbitmq/FF6600" alt="RabbitMQ logo">RabbitMQ — User signs up on any app</span></div>
+    <div class="real-ex-desc">Trigger: send welcome email + create billing record + notify team</div>
+  </div>
+  <div id="ex-signup" class="tooltip-box" style="margin-bottom:8px"></div>
+  
+  <div class="real-ex" style="background:var(--blue-l);border-color:#B5D4F4" onclick="showEx('zomato')">
+    <div class="real-ex-company" style="color:var(--blue)"><span class="brand-line"><img class="brand-logo" src="https://cdn.simpleicons.org/apachekafka/FFFFFF" alt="Kafka logo">Kafka — Swiggy / Zomato live order tracking</span></div>
+    <div class="real-ex-desc">Producer: driver app → Kafka → Consumer: customer app + analytics + restaurant dashboard</div>
+  </div>
+  <div id="ex-zomato" class="tooltip-box" style="margin-bottom:8px"></div>
+
+  <div class="real-ex" style="background:var(--blue-l);border-color:#B5D4F4" onclick="showEx('netflix')">
+    <div class="real-ex-company" style="color:var(--blue)"><span class="brand-line"><img class="brand-logo" src="https://cdn.simpleicons.org/apachekafka/FFFFFF" alt="Kafka logo">Kafka — Netflix / YouTube user activity tracking</span></div>
+    <div class="real-ex-desc">Every click, pause, seek → Kafka → recommendation engine + analytics + ads</div>
+  </div>
+  <div id="ex-netflix" class="tooltip-box" style="margin-bottom:8px"></div>
+
+  <div class="real-ex" style="background:var(--teal-l);border-color:#9FE1CB" onclick="showEx('payment')">
+    <div class="real-ex-company" style="color:var(--teal)"><span class="brand-line"><img class="brand-logo" src="https://cdn.simpleicons.org/rabbitmq/FF6600" alt="RabbitMQ logo">RabbitMQ — Payment processing</span></div>
+    <div class="real-ex-desc">One payment → processed exactly once → ACK → next</div>
+  </div>
+  <div id="ex-payment" class="tooltip-box"></div>
+</div>
+</div>
+
+<!-- ====== DECISION ====== -->
+<div class="section" id="s-decide">
+<p class="section-title">Decision Tool</p>
+<p class="subtitle">Answer questions to get a recommendation</p>
+<div class="decision-tree">
+  <div id="dt-step" class="dt-question">Do you need messages processed exactly once?</div>
+  <div id="dt-opts" class="dt-options">
+    <button class="dt-btn" onclick="dtAnswer('yes')">Yes — must not duplicate</button>
+    <button class="dt-btn" onclick="dtAnswer('no')">No — multiple consumers ok</button>
+  </div>
+  <div id="dt-result" class="dt-result"></div>
+  <button id="dt-reset" class="dt-reset" onclick="dtReset()">↺ Start over</button>
+  <div id="dt-progress" style="text-align:center;font-size:11px;color:var(--color-text-secondary);margin-top:8px"></div>
+</div>
+</div>
+
+<!-- ====== SUMMARY ====== -->
+<div class="section" id="s-summary">
+<p class="section-title">Quick Summary</p>
+<p class="subtitle">Everything at a glance — your cheat sheet</p>
+<div class="summary-grid">
+  <div class="summary-header rb"><span class="brand-line"><img class="brand-logo" src="https://cdn.simpleicons.org/rabbitmq/FF6600" alt="RabbitMQ logo">RabbitMQ</span></div>
+  <div class="summary-header kf"><span class="brand-line"><img class="brand-logo" src="https://cdn.simpleicons.org/apachekafka/FFFFFF" alt="Kafka logo">Kafka</span></div>
+
+  <div class="summary-attr">Model</div>
+  <div>Push-based — broker delivers</div>
+  <div>Pull-based — consumer polls</div>
+
+  <div class="summary-attr">Message retention</div>
+  <div>Deleted after ACK</div>
+  <div>Stored (default 7 days, configurable)</div>
+
+  <div class="summary-attr">Throughput</div>
+  <div>20k–50k msgs/sec</div>
+  <div>Millions msgs/sec</div>
+
+  <div class="summary-attr">Latency</div>
+  <div>Very low (~1ms)</div>
+  <div>Low but higher than RMQ</div>
+
+  <div class="summary-attr">Routing</div>
+  <div>Flexible (4 exchange types)</div>
+  <div>By topic + partition key</div>
+
+  <div class="summary-attr">Replay</div>
+  <div>Not possible (deleted)</div>
+  <div>Yes — from any offset</div>
+
+  <div class="summary-attr">Multiple consumers</div>
+  <div>Competing consumers (one gets it)</div>
+  <div>Each group reads independently</div>
+
+  <div class="summary-attr">Best for</div>
+  <div>Task queues, microservices RPC, notifications</div>
+  <div>Streaming, analytics, event sourcing, logs</div>
+
+  <div class="summary-attr">Real example</div>
+  <div>Send OTP, background jobs, payment</div>
+  <div>Swiggy tracking, Netflix activity, fintech audit</div>
+
+  <div class="summary-attr">Analogy</div>
+  <div>📦 Courier delivery</div>
+  <div>📺 YouTube (stored, replay anytime)</div>
+</div>
+<div style="margin-top:14px;padding:14px;border-radius:9px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);font-size:13px;line-height:1.8">
+  <strong>One-line rule:</strong><br>
+  If you want to <strong style="color:var(--teal)">get work done</strong> → RabbitMQ<br>
+  If you want to <strong style="color:var(--blue)">stream and analyze data</strong> → Kafka<br><br>
+  <span style="color:var(--color-text-secondary)">Next topic idea: <strong>Redis vs Kafka</strong> — when pub/sub beats full event streaming</span>
+</div>
+</div>
+
+</div>
+
+<script>
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+const tips = {
+  rb:{
+    producer:"Producer: Any app or service that creates a message. Could be your Node.js backend sending 'user signed up'. It connects to RabbitMQ and publishes to an exchange.",
+    exchange:"Exchange: The post office. It receives messages and decides which queue gets them. Types: Direct (exact match), Fanout (broadcast all), Topic (pattern match), Headers.",
+    queue:"Queue: Holds messages until a consumer is ready. FIFO order. If consumer is down, messages wait here safely (with persistence on). Think of it as a buffer.",
+    consumer:"Consumer: Your worker service that processes messages. After processing, it sends ACK (acknowledgment). RabbitMQ then DELETES the message permanently.",
+    direct:"Direct exchange: Routes to queue with exact routing key match. e.g. key='email' → email queue only.",
+    fanout:"Fanout exchange: Broadcasts to ALL queues. Like CC in email. e.g. user.created → email queue + SMS queue + analytics queue.",
+    topic:"Topic exchange: Pattern matching routing. e.g. 'order.*' matches 'order.placed' and 'order.cancelled'.",
+    headers:"Headers exchange: Routes based on message headers not routing key. Most flexible but least common."
+  },
+  kf:{
+    producer:"Producer: Publishes events/records to a Kafka topic. Chooses which partition (round-robin or by key). Fire and forget — broker handles the rest.",
+    topic:"Topic: A named category/feed of records. Like a YouTube channel. Multiple producers can publish, multiple consumer groups can subscribe. Stored on disk.",
+    partition:"Partitions: A topic is split into N partitions (parallel lanes). Each partition is an ordered, immutable log. More partitions = more parallelism = more throughput.",
+    consumer:"Consumer Group: Each group reads all partitions independently. Within a group, each partition goes to exactly one consumer. Offset tracked per group.",
+    broker:"Broker: A Kafka server. Stores partition data on disk. Cluster of brokers = replicated fault-tolerant log. Dumb — just appends and serves. No routing logic.",
+    zookeeper:"Zookeeper/KRaft: Manages broker metadata, leader election, cluster state. Modern Kafka uses KRaft (Kafka Raft) built-in — no Zookeeper needed.",
+    offset:"Offset: A number for each message position in a partition. Consumer commits offsets to track progress. Can replay from any offset — this is how replay works.",
+    replication:"Replication: Each partition has a leader + N replicas on different brokers. If leader dies, a replica takes over. Replication factor = fault tolerance level."
+  }
+};
+
+function showTip(sys, key){
+  const el = document.getElementById('tip-'+sys);
+  const text = tips[sys][key];
+  if(el.textContent === text && el.classList.contains('show')){
+    el.classList.remove('show'); return;
+  }
+  el.textContent = text;
+  el.classList.add('show');
+}
+
+let pushRunning = false;
+function animatePush(){
+  if(pushRunning) return;
+  pushRunning = true;
+  const dot = document.getElementById('push-dot');
+  const log = document.getElementById('push-log');
+  dot.style.left = '15%';
+  log.textContent = 'Broker: pushing message...';
+  setTimeout(()=>{dot.style.left='75%';},50);
+  setTimeout(()=>{log.textContent = '✅ Consumer 1 received & processed. Message deleted.'; pushRunning=false;},700);
+}
+
+let pullRunning = false;
+function animatePull(){
+  if(pullRunning) return;
+  pullRunning = true;
+  const dot = document.getElementById('pull-dot');
+  const log = document.getElementById('pull-log');
+  dot.style.left = '15%';
+  log.textContent = 'Consumer polling Kafka at offset...';
+  setTimeout(()=>{dot.style.left='75%';},50);
+  setTimeout(()=>{dot.style.left='85%'; log.textContent='Fetched 5 messages from offset 42. Processing...';},700);
+  setTimeout(()=>{dot.style.left='15%'; log.textContent='✅ Done. Committing offset 47. Message still in Kafka!'; pullRunning=false;},1400);
+}
+
+const rbMessages = ['msg-1','msg-2','msg-3','msg-4','msg-5'];
+let rbConsumed = new Set();
+function initRb(){
+  const c = document.getElementById('rb-msgs');
+  c.innerHTML = rbMessages.map(m=>`<div class="msg-pill rb-msg" id="${m}" onclick="consumeRb('${m}')">${m}</div>`).join('');
+}
+function consumeRb(id){
+  if(rbConsumed.has(id)) return;
+  rbConsumed.add(id);
+  document.getElementById(id).classList.add('consumed');
+  document.getElementById(id).textContent = id+' ✗';
+  document.getElementById('rb-log').textContent = `Consumed ${id} → ACK sent → Message DELETED from queue. (${5-rbConsumed.size} remaining)`;
+}
+initRb();
+
+let kfGroups = [{name:'Analytics',offset:0},{name:'Recommendation',offset:0}];
+const kfMessages = ['event-1','event-2','event-3','event-4','event-5'];
+function renderKf(){
+  const c = document.getElementById('kf-msgs');
+  c.innerHTML = kfMessages.map((m,i)=>`<div class="msg-pill kf-msg" id="kf-${i}">${m} [offset:${i}]</div>`).join('');
+  renderKfConsumers();
+}
+function renderKfConsumers(){
+  const c = document.getElementById('kf-consumers');
+  c.innerHTML = kfGroups.map((g,gi)=>`
+    <div style="margin-top:8px;padding:8px 12px;background:var(--blue-l);border-radius:7px;border:0.5px solid #B5D4F4;display:flex;align-items:center;gap:8px;font-size:12px">
+      <span style="font-weight:500;color:var(--blue)">${g.name} group</span>
+      <span style="color:var(--color-text-secondary)">offset: ${g.offset}</span>
+      <button onclick="readKf(${gi})" style="padding:3px 10px;font-size:11px;border:0.5px solid #85B7EB;background:var(--color-background-primary);color:var(--blue);border-radius:4px;cursor:pointer">Read next</button>
+      <span style="color:var(--color-text-secondary)" id="kf-log-${gi}">${g.offset>=5?'All read ✅':''}</span>
+    </div>`).join('');
+}
+function readKf(gi){
+  const g = kfGroups[gi];
+  if(g.offset>=5){document.getElementById('kf-log-'+gi).textContent='All messages read!';return;}
+  const msg = kfMessages[g.offset];
+  document.querySelectorAll('.kf-msg').forEach((el,i)=>el.classList.toggle('replayed', i===g.offset));
+  document.getElementById('kf-log-'+gi).textContent = `Read ${msg} → offset now ${g.offset+1}. Data still in Kafka!`;
+  g.offset++;
+  renderKfConsumers();
+}
+function addKfConsumer(){
+  const names = ['Search','ML Training','Audit','Billing','Monitoring'];
+  const used = kfGroups.map(g=>g.name);
+  const avail = names.filter(n=>!used.includes(n));
+  if(!avail.length){alert('Max demo groups reached');return;}
+  kfGroups.push({name:avail[0],offset:0});
+  renderKfConsumers();
+}
+function resetKf(){kfGroups.forEach(g=>g.offset=0);renderKfConsumers();}
+renderKf();
+
+const exData = {
+  signup: "Why RabbitMQ: User signup triggers 3 separate tasks — welcome email, billing setup, Slack notification. Each task goes to its own queue via a Fanout exchange. Each consumer processes its job once, ACKs, and the message is deleted. No duplication. Perfect task queue pattern.",
+  zomato: "Why Kafka: Driver location updates come in 1000s/second. Multiple consumers need same data simultaneously — customer app (show driver live), restaurant dashboard (ETA), analytics team (heatmaps), ML team (route optimization). Kafka stores all events. Each consumer group reads independently at its own pace. Can replay last hour's data if ML pipeline crashed.",
+  netflix: "Why Kafka: Every user action (play, pause, seek, like) from 250M+ users = massive event stream. Recommendation engine, A/B testing system, ad platform, and billing all consume the same stream. Kafka retains 7 days of events — can replay to retrain ML models or debug issues. RabbitMQ would be deleted before the ML team even reads it.",
+  payment: "Why RabbitMQ: A payment must be processed exactly once. RabbitMQ's ACK mechanism ensures the message is only deleted after successful processing. If processor crashes, message requeues. Dead Letter Queue handles failed payments. The broker tracks delivery state — consumer just processes and ACKs. Simple, reliable, exactly-once semantics."
+};
+function showEx(key){
+  const el = document.getElementById('ex-'+key);
+  if(el.classList.contains('show')){el.classList.remove('show');return;}
+  document.querySelectorAll('[id^="ex-"]').forEach(e=>e.classList.remove('show'));
+  el.textContent = exData[key];
+  el.classList.add('show');
+}
+
+const dtSteps = [
+  {q:"Do you need messages processed exactly once (no duplicates)?",opts:["Yes, exactly once","No, multiple consumers ok"],ans:["rabbit-1","kafka-1"]},
+  {q:"Need to reply/replay old messages later?",opts:["Yes, replay is important","No, process and forget"],ans:["kafka-2","rabbit-2"]},
+  {q:"Expected message volume?",opts:["< 50k/sec (normal load)","Millions/sec (huge scale)"],ans:["rabbit-3","kafka-3"]},
+  {q:"Do multiple services need the same event?",opts:["Yes, broadcast to many","No, one worker picks it up"],ans:["kafka-4","rabbit-4"]},
+];
+const dtResults = {
+  'rabbit-1':{t:'Use RabbitMQ',d:'Exactly-once delivery with ACK + Dead Letter Queue is RabbitMQ\'s strength.',c:'show-rabbit'},
+  'kafka-1':{t:'Likely Kafka',d:'Multiple consumer groups reading same data = Kafka\'s core feature.',c:'show-kafka'},
+  'kafka-2':{t:'Use Kafka',d:'Replay from any offset is Kafka\'s killer feature — RabbitMQ can\'t do this.',c:'show-kafka'},
+  'rabbit-2':{t:'Use RabbitMQ',d:'Process and delete — simple task queue. RabbitMQ is perfect.',c:'show-rabbit'},
+  'rabbit-3':{t:'RabbitMQ works great',d:'At this scale, RabbitMQ is simpler to operate and has lower latency.',c:'show-rabbit'},
+  'kafka-3':{t:'Kafka is the only choice',d:'Kafka is built for this. Partitioned, distributed log scales horizontally.',c:'show-kafka'},
+  'kafka-4':{t:'Use Kafka',d:'Kafka topics let Analytics, ML, and Billing all read the same event independently.',c:'show-kafka'},
+  'rabbit-4':{t:'Use RabbitMQ',d:'Task queue where one worker picks up one job — classic RabbitMQ use case.',c:'show-rabbit'},
+};
+let dtStep = 0;
+function dtAnswer(choice){
+  const step = dtSteps[dtStep];
+  const idx = choice === 'yes' ? 0 : 1;
+  const resultKey = step.ans[idx];
+  if(resultKey.startsWith('rabbit') || resultKey.startsWith('kafka')){
+    const r = dtResults[resultKey];
+    document.getElementById('dt-result').className = 'dt-result '+r.c;
+    document.getElementById('dt-result').innerHTML = r.t+'<small>'+r.d+'</small>';
+    document.getElementById('dt-opts').style.display='none';
+    document.getElementById('dt-reset').classList.add('show');
+    document.getElementById('dt-progress').textContent='';
+  }
+  dtStep++;
+}
+function dtReset(){
+  dtStep=0;
+  const step = dtSteps[0];
+  document.getElementById('dt-step').textContent=step.q;
+  document.getElementById('dt-opts').innerHTML=step.opts.map((o,i)=>`<button class="dt-btn" onclick="dtAnswer(${i===0?'\'yes\'':'\'no\''})">${o}</button>`).join('');
+  document.getElementById('dt-opts').style.display='flex';
+  document.getElementById('dt-result').className='dt-result';
+  document.getElementById('dt-reset').classList.remove('show');
+  document.getElementById('dt-progress').textContent='';
+}
+
+(function initDt(){
+  const step = dtSteps[0];
+  document.getElementById('dt-step').textContent=step.q;
+  document.getElementById('dt-opts').innerHTML=step.opts.map((o,i)=>`<button class="dt-btn" onclick="dtAnswer(${i===0?'\'yes\'':'\'no\''})">${o}</button>`).join('');
+})();
+</script>
